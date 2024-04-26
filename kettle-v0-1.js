@@ -247,22 +247,21 @@ function Kettle(name) {
             this.options.power)
         );
 
-        let tikTemp = Math.round( 
+        let tikTemp = Math.ceil( 
         (this.options.goalTemp - this.options.temp) / 
         this.options.boilingTime);
         
         let timer = setInterval(()=>{
-            while(this.options.temp < 100) {
-                console.clear();
-                --this.options.boilingTime;
+                this.options.boilingTime = this.options.boilingTime - 1;
                 this.options.temp += (tikTemp);
+                console.clear();
                 console.log(`Timer: ${this.options.boilingTime}sec`);
                 console.log(`Temp: ${this.options.temp}C`);
-            }
-            clearInterval(timer);
+            if(this.options.temp >= 100)clearInterval(timer);
+
         }, 1000);
         
-        console.log('Чайник закипел!');
+        // console.log('Чайник закипел!');
 
     };
 }
