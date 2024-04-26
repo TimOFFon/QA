@@ -29,8 +29,10 @@ let t = Math.round(c * m * (t2 - t1) / W);
     4) Оповещение выключения
 */
 
-function New_Kettle(name) {
-    this.name = name;
+
+
+function Action() {
+    this.name = this.constructor.name.toLowerCase();
     this.txt = {
         //---------------- инструкции --------------------
         putSink: (str) => {
@@ -82,16 +84,24 @@ function New_Kettle(name) {
         нагревательную платформу.
         В чайнике ${volume} грамм воды, 
         можете приступать к кипячению
-        набрав команду ${str}[xxx]`),
+        набрав команду 'kettle.on'`),
     };
     
    this.txt.putSink(this.name);
     // Чайник -----------------------------------------------
-    this.kettle = {
-        volume: null,
+    // передача информации в Отдельный конструктор
+    this.information = {
+        waterVolume: null,
+        platform: false,
+        getVolume() {
+            return this.waterVolume;
+        },
+        getStatPlat() {
+            return this.platform;
+        }
     };
     //------------------------------------------------------
-
+    // 
     // Набор воды --------------------------------------------
     /* 
     1.Взять чайник и поставить под кран (текст)
@@ -128,7 +138,7 @@ function New_Kettle(name) {
         clearTimeout(this.filling.message_2);
         console.clear();
 
-        this.count = this.kettle.volume;
+        this.count = this.information.waterVolume;
         this.message = null;
         this.warning = this.txt.remind(this.name);
 
@@ -157,7 +167,7 @@ function New_Kettle(name) {
                     clearInterval(this.waterValue);
                 }
 
-                this.kettle.volume = this.count;
+                this.information.waterVolume = this.count;
 
                 console.clear();
 
@@ -179,7 +189,7 @@ function New_Kettle(name) {
         clearTimeout(this.flowing);
         clearInterval(this.waterValue);
         console.clear();
-        this.txt.tapClose(this.kettle.volume);
+        this.txt.tapClose(this.information.waterVolume);
 
         let message_3 = setTimeout(() => {
             this.txt.satisfied(this.name);
@@ -198,13 +208,69 @@ function New_Kettle(name) {
         let message_5 = setTimeout(() => {
             clearTimeout(message_4);
             console.clear();
-            this.txt.putStove(this.name, this.kettle.volume);
+            this.txt.putStove(this.name, this.information.waterVolume);
         }, 2000);
 
-    };
+        kettle.options.valume = this.information.waterVolume;
+        kettle.options.temp = 10;
+        kettle.options.position = true;
 
+    };
 }
 
-let my_kettle = new New_Kettle('my_kettle');
+function Kettle(name) {
+    this.options = {
+    //    valume: null,
+       valume: 300,
+        name: name,
+        // temp: null,
+        temp: 10,
+        goalTemp: 100,
+        status: 'off',
+        boilingTime: null,
+        power: null,
+        // position: false,
+        position: true,
+        heatСap: 4183
+    };
+
+
+
+    this.on = function() {
+        console.clear();
+        this.options.power = 3000;
+        this.options.status = 'on';
+        this.options.boilingTime = (
+            Math.round(
+            this.options.heatСap * (this.options.valume / 1000) * 
+            (this.options.goalTemp - this.options.temp) / 
+            this.options.power)
+        );
+
+        let tikTemp = Math.round( 
+        (this.options.goalTemp - this.options.temp) / 
+        this.options.boilingTime);
+        
+        let timer = setInterval(()=>{
+            while(this.options.temp < 100) {
+                console.clear();
+                --this.options.boilingTime;
+                this.options.temp += (tikTemp);
+                console.log(`Timer: ${this.options.boilingTime}sec`);
+                console.log(`Temp: ${this.options.temp}C`);
+            }
+            clearInterval(timer);
+        }, 1000);
+        
+        console.log('Чайник закипел!');
+
+    };
+}
+
+
+
+let action = new Action();
+let kettle = new Kettle('my_kettle');
+
 
 
